@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+            background-color: #f4f4f4;
+            color: black;
+            transition: background-color 0.3s, color 0.3s;
+            background-image: url('abstract-shapes-line-patterned-background_697972-2773.avif');
+            background-size: cover;
+            background-attachment: fixed;
+            background-blend-mode: lighten;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 8px;
+            width: 90%;
+        }
+        button {
+            background-color: #5dade2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #CCE5FF;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: white;
+            background-image: url('abstract-shapes-line-patterned-background_697972-2773.avif');
+            background-blend-mode: darken;
+        }
+        .dark-mode .container {
+            background: rgba(30, 30, 30, 0.9);
+        }
+        .dark-mode li {
+            background: #333;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #ddd;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .income { color: green; }
+        .expense { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Expense Tracker 💰</h2>
+        <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        <input type="text" id="desc" placeholder="Description">
+        <input type="number" id="amount" placeholder="Amount">
+        <button onclick="addTransaction()">Add Transaction</button>
+        <ul id="transactions"></ul>
+        <h3>Total Balance: <span id="balance">$0</span></h3>
+        <h3>Total Income: <span id="totalIncome">$0</span></h3>
+        <h3>Total Expenses: <span id="totalExpense">$0</span></h3>
+    </div>
+    <script>
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        
+        function updateUI() {
+            const transactionList = document.getElementById('transactions');
+            const balanceElement = document.getElementById('balance');
+            const totalIncomeElement = document.getElementById('totalIncome');
+            const totalExpenseElement = document.getElementById('totalExpense');
+            transactionList.innerHTML = '';
+            let balance = 0;
+            let totalIncome = 0;
+            let totalExpense = 0;
+            
+            transactions.forEach((transaction, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `${transaction.desc} <span class="${transaction.amount >= 0 ? 'income' : 'expense'}">$${transaction.amount}</span> ` +
+                    `<button onclick="deleteTransaction(${index})">❌</button>`;
+                transactionList.appendChild(li);
+                balance += transaction.amount;
+                if (transaction.amount >= 0) {
+                    totalIncome += transaction.amount;
+                } else {
+                    totalExpense += Math.abs(transaction.amount);
+                }
+            });
+            
+            balanceElement.textContent = `$${balance}`;
+            totalIncomeElement.textContent = `$${totalIncome}`;
+            totalExpenseElement.textContent = `$${totalExpense}`;
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+        
+        function addTransaction() {
+            const desc = document.getElementById('desc').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            if (!desc || isNaN(amount)) return;
+            
+            transactions.push({ desc, amount });
+            updateUI();
+            document.getElementById('desc').value = '';
+            document.getElementById('amount').value = '';
+        }
+        
+        function deleteTransaction(index) {
+            transactions.splice(index, 1);
+            updateUI();
+        }
+        
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+        
+        updateUI();
+    </script>
+</body>
+</html>
